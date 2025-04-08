@@ -51,7 +51,7 @@ public class LivroService {
 
         for( Livro livro = novoLivro : simularCache){
 
-        }
+        }   
         return  new LivroDTO(novoLivro);
     }
 }
