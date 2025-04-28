@@ -26,15 +26,21 @@ public class LivroService {
 
 
     public  Livro getLivro(Long id) {
-        for (Livro livro : simularCache){
-            if(id == simularCache.getFirst().getId()){
-                System.out.println("Salvou no cache");
-                return  simularCache.getFirst();
+        for (int i = 0; i < simularCache.size(); i++){
+            Livro livro = simularCache.get(i);
+            if(livro.getId() == id){
+                System.out.println("\n FOI DO CACHE:");
+                System.out.println(livro.getNomeLivro()
+                        + "\n" + livro.getDescricaoLivro()
+                        + "\n" + livro.getAutor()
+                        + "\n" + livro.getEmprestimo()); // Aqui é o divisor de águas!
+                return livro;
             }
         }
         Livro livro = livroRepository.findById(id).orElse(null);
         if(livro != null){
             simularCache.add(livro);
+            System.out.print("Foi no BANCO");
         } else {
             return null;
         }
@@ -48,10 +54,40 @@ public class LivroService {
         novoLivro.setAutor(dto.getAutor());
         novoLivro.setEmprestimo(LocalDate.now());
         novoLivro = livroRepository.save(novoLivro);
-
-        for( Livro livro = novoLivro : simularCache){
-
-        }   
         return  new LivroDTO(novoLivro);
+    }
+
+
+    public  Livro atualizarLivro(LivroDTO dto, Long id){
+        for(int i = 0; i < simularCache.size(); i++){
+            if(simularCache.get(i).getId() == id){
+                Optional<Livro> find = livroRepository.findById(id);
+                if(find.isPresent()) {
+                    Livro livroAntesAtlz = simularCache.get(i);
+                    System.out.println("Versão antiga:" + "\n" +livroAntesAtlz);
+                    Livro atlzLivro = find.get();
+                    atlzLivro.setNomeLivro(dto.getNomeLivro());
+                    atlzLivro.setEmprestimo(dto.getEmprestimo());
+                    atlzLivro.setDescricaoLivro(dto.getDescricaoLivro());
+                    atlzLivro.setAutor(dto.getAutor());
+                    atlzLivro = livroRepository.save(atlzLivro);
+                    simularCache.set(i, atlzLivro);
+                    Livro livroAtualizado = simularCache.get(i);
+                    System.out.println("Versão Nova:" + "\n" + livroAtualizado.toString());
+                    return  atlzLivro;
+                }
+            }
+        }
+        Optional<Livro> find = livroRepository.findById(id);
+        if(find.isPresent()) {
+            Livro atlzLivro = find.get();
+            atlzLivro.setNomeLivro(dto.getNomeLivro());
+            atlzLivro.setEmprestimo(dto.getEmprestimo());
+            atlzLivro.setDescricaoLivro(dto.getDescricaoLivro());
+            atlzLivro.setAutor(dto.getAutor());
+            atlzLivro = livroRepository.save(atlzLivro);
+            return atlzLivro;
+        }
+        return null;
     }
 }

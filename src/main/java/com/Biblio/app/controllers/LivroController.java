@@ -26,4 +26,10 @@ public class LivroController {
         return ResponseEntity.ok(livro);
     }
 
+    @PutMapping("/put/{id}")
+    public ResponseEntity<Livro> atlzLivroId(@PathVariable Long id, @RequestBody LivroDTO dto){
+         livroService.atualizarLivro(dto, id);
+        return ResponseEntity.ok().build();
+    }
+
 }
